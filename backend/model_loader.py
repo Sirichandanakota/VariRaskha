@@ -1,3 +1,4 @@
+import gc
 from dataclasses import dataclass
 from pathlib import Path
 from threading import Lock, Thread
@@ -35,6 +36,7 @@ class ModelRegistry:
         self._selected_model: str | None = None
         self._ready = False
         torch.set_num_threads(1)
+        torch.set_num_interop_threads(1)
 
     @property
     def ready(self) -> bool:
@@ -139,6 +141,10 @@ class ModelRegistry:
                 checkpoint_classes = payload.get("class_names")
                 if checkpoint_classes is not None and checkpoint_classes != CLASS_NAMES:
                     raise ValueError("checkpoint class_names do not match the notebook ordering")
-                model.load_state_dict(self._state_dict(payload), strict=True)
+                state_dict = self._state_dict(payload)
+                model.load_state_dict(state_dict, strict=True)
+                del state_dict
+                del payload
+                gc.collect()
                 self._models[model_id] = model.to(self.device).eval()
             return self._models[model_id]

@@ -32,6 +32,17 @@ app.add_middleware(
 )
 
 
+@app.get("/")
+def root() -> dict[str, str]:
+    return {
+        "service": "Variraksha Rice Disease API",
+        "status": "ok",
+        "health": "/health",
+        "models": "/models",
+        "prediction": "/predict",
+    }
+
+
 class ModelSelection(BaseModel):
     model: str
 
