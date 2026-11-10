@@ -16,6 +16,8 @@ Variraksha/
 .venv*/
 backend/checkpoints/*.pth
 backend/checkpoints/**/*.pth
+!backend/checkpoints/*.pth
+backend/checkpoints/rice_model_checkpoints (1)/
 *.zip
 __pycache__/
 
