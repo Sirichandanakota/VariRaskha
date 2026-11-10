@@ -10,9 +10,8 @@ from torch import nn
 from config import (
     CHECKPOINT_DIR,
     CLASS_NAMES,
+    DEFAULT_MODEL_ID,
     MODEL_SPECS,
-    RICE_LEAF_VALIDATOR_CLASSES,
-    RICE_LEAF_VALIDATOR_SPEC,
 )
 
 
@@ -35,6 +34,7 @@ class ModelRegistry:
         self._lock = Lock()
         self._selected_model: str | None = None
         self._ready = False
+        torch.set_num_threads(1)
 
     @property
     def ready(self) -> bool:
@@ -63,60 +63,25 @@ class ModelRegistry:
 
     def _verify_checkpoints(self) -> None:
         CHECKPOINT_DIR.mkdir(parents=True, exist_ok=True)
-        self._verify_validator()
-        for model_id, spec in MODEL_SPECS.items():
-            candidates = [CHECKPOINT_DIR / name for name in spec["filenames"]]
-            checkpoint_path = next((path for path in candidates if path.is_file()), None)
-            if checkpoint_path is None:
-                self._errors[model_id] = (
-                    "No checkpoint found. Expected one of: "
-                    + ", ".join(spec["filenames"])
-                )
-                continue
-
-            self._infos[model_id] = ModelInfo(
-                model_id=model_id,
-                display_name=spec["display_name"],
-                architecture=spec["architecture"],
-                checkpoint=checkpoint_path.name,
-            )
-
-    def _verify_validator(self) -> None:
-        spec = RICE_LEAF_VALIDATOR_SPEC
+        model_id = DEFAULT_MODEL_ID
+        spec = MODEL_SPECS[model_id]
         checkpoint_path = next(
             (CHECKPOINT_DIR / name for name in spec["filenames"] if (CHECKPOINT_DIR / name).is_file()),
             None,
         )
         if checkpoint_path is None:
-            self._validator_error = (
-                "Rice-leaf validator checkpoint is missing. Expected: "
+            self._errors[model_id] = (
+                "No checkpoint found. Expected one of: "
                 + ", ".join(spec["filenames"])
             )
             return
 
-        try:
-            payload = self._checkpoint_payload(checkpoint_path)
-            checkpoint_classes = payload.get("class_names")
-            if checkpoint_classes != RICE_LEAF_VALIDATOR_CLASSES:
-                raise ValueError("validator class_names must be ['not_rice_leaf', 'rice_leaf']")
-            if payload.get("architecture") != spec["architecture"]:
-                raise ValueError("validator architecture metadata does not match resnet18")
-            if payload.get("input_size") != 224:
-                raise ValueError("validator input_size metadata must be 224")
-            normalization = payload.get("normalization")
-            if not isinstance(normalization, dict) or normalization.get("mean") != [0.485, 0.456, 0.406] or normalization.get("std") != [0.229, 0.224, 0.225]:
-                raise ValueError("validator normalization metadata does not match ImageNet normalization")
-            model = timm.create_model(
-                spec["architecture"],
-                pretrained=False,
-                num_classes=len(RICE_LEAF_VALIDATOR_CLASSES),
-            )
-            model.load_state_dict(self._state_dict(payload), strict=True)
-        except (RuntimeError, ValueError, OSError, KeyError) as error:
-            self._validator_error = f"{checkpoint_path.name}: {error}"
-            return
-
-        self._validator = model.to(self.device).eval()
+        self._infos[model_id] = ModelInfo(
+            model_id=model_id,
+            display_name=spec["display_name"],
+            architecture=spec["architecture"],
+            checkpoint=checkpoint_path.name,
+        )
 
     @property
     def validator_ready(self) -> bool:
