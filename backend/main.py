@@ -5,7 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 
-from config import FRONTEND_ORIGINS, MAX_IMAGE_BYTES
+from config import DEFAULT_MODEL_ID, FRONTEND_ORIGINS, MAX_IMAGE_BYTES
 from model_loader import ModelRegistry
 from prediction import predict_image
 
@@ -97,7 +97,9 @@ async def predict(
 ) -> dict:
     current = get_registry()
     selected_model = model or current.selected_model or (
-        current.available()[0].model_id if current.available() else None
+        DEFAULT_MODEL_ID if DEFAULT_MODEL_ID in {info.model_id for info in current.available()} else (
+            current.available()[0].model_id if current.available() else None
+        )
     )
     if selected_model is None:
         raise HTTPException(status_code=503, detail="No verified model checkpoints are available")

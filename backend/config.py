@@ -67,6 +67,8 @@ MODEL_SPECS = {
     },
 }
 
+DEFAULT_MODEL_ID = "efficientnetv2-s"
+
 RICE_LEAF_VALIDATOR_SPEC = {
     "display_name": "Rice Leaf Validator",
     "architecture": "resnet18",
