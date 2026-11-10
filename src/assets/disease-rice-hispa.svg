@@ -1,0 +1,15 @@
+<svg width="420" height="280" viewBox="0 0 420 280" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="420" height="280" rx="24" fill="#F6F9F3"/>
+  <path d="M83 200C114 174 151 157 193 149C246 139 296 145 340 171V231H83V200Z" fill="#EAF8F1"/>
+  <path d="M121 119C137 82 156 59 184 43C213 59 236 90 247 129C220 119 197 116 167 117C152 117 136 118 121 119Z" fill="#0B8F5A"/>
+  <path d="M175 132C185 104 196 82 208 62C226 83 241 108 254 145C235 153 212 159 186 163C180 157 177 147 175 132Z" fill="#087F4E"/>
+  <path d="M261 147C283 129 310 122 338 123C353 123 366 127 376 134C365 152 342 170 316 176C295 174 277 164 261 147Z" fill="#0B8F5A"/>
+  <path d="M152 96L145 59" stroke="#F4A000" stroke-width="7" stroke-linecap="round"/>
+  <path d="M206 92L204 58" stroke="#F4A000" stroke-width="7" stroke-linecap="round"/>
+  <path d="M255 103L260 73" stroke="#F4A000" stroke-width="7" stroke-linecap="round"/>
+  <path d="M137 162C149 170 161 171 175 167" stroke="#B48B46" stroke-width="8" stroke-linecap="round"/>
+  <path d="M182 171C194 180 205 184 220 181" stroke="#B48B46" stroke-width="8" stroke-linecap="round"/>
+  <path d="M233 168C246 175 260 176 275 171" stroke="#B48B46" stroke-width="8" stroke-linecap="round"/>
+  <path d="M121 182C138 171 160 170 181 180C177 195 160 208 140 215C126 209 117 196 121 182Z" fill="#EAF8F1"/>
+  <path d="M291 179C310 170 331 169 350 178C346 192 329 205 308 212C293 205 287 192 291 179Z" fill="#EAF8F1"/>
+</svg>
