@@ -48,7 +48,9 @@ a substitute for that validator.
 The frontend and backend are separate services:
 
 1. Deploy the project root as a Vite static site.
-2. Set `VITE_API_BASE_URL` in the frontend service to the public backend URL.
+2. In Vercel Project Settings > Environment Variables, set
+   `VITE_API_BASE_URL` to the public HTTPS URL of the backend, then redeploy.
+   Do not use `127.0.0.1` or `localhost` in a production value.
 3. Deploy `backend` as a Python ASGI service using:
 
    ```bash
@@ -64,3 +66,9 @@ The frontend and backend are separate services:
 The backend will start without checkpoints, but `/predict` will remain
 unavailable until the model files are supplied. The optional
 `best_rice_leaf_validator.pth` enables rejection of unrelated images.
+
+The Vercel frontend cannot run the PyTorch backend by itself. The backend must
+run as a separate Python service with the checkpoint files available, and its
+public URL must be configured as `VITE_API_BASE_URL`. After changing a Vercel
+environment variable, create a new deployment; environment variables are
+embedded into the frontend during the build.

@@ -16,8 +16,9 @@ export type AIResult =
       status: 'low-confidence'
     }
 
+const configuredApiBaseUrl = import.meta.env.VITE_API_BASE_URL?.trim()
 const API_BASE_URL = (
-  import.meta.env.VITE_API_BASE_URL ?? 'http://127.0.0.1:8000'
+  configuredApiBaseUrl || (import.meta.env.DEV ? 'http://127.0.0.1:8000' : '')
 ).replace(/\/$/, '')
 const MODEL_ID = import.meta.env.VITE_MODEL_ID
 const RETRY_DELAYS_MS = [0, 2000, 5000, 10000]
@@ -36,6 +37,11 @@ export async function validateImage(file: File): Promise<'valid' | 'crop-not-det
 export async function analyzeImage(file: File): Promise<AIResult> {
   const validation = await validateImage(file)
   if (validation !== 'valid') return { status: validation }
+  if (!API_BASE_URL) {
+    throw new Error(
+      'Prediction is not configured for this deployment. Set VITE_API_BASE_URL to the public HTTPS URL of the FastAPI backend and redeploy the frontend.',
+    )
+  }
 
   const formData = new FormData()
   formData.append('image', file)
@@ -53,7 +59,7 @@ export async function analyzeImage(file: File): Promise<AIResult> {
     } catch (error) {
       if (delay === RETRY_DELAYS_MS[RETRY_DELAYS_MS.length - 1]) {
         throw new Error(
-          'Unable to connect to the local prediction server. Start FastAPI with: cd backend && python -m uvicorn main:app --reload --host 127.0.0.1 --port 8000',
+          `Unable to connect to the prediction server at ${API_BASE_URL}. Check that the backend is deployed, healthy, and allows this frontend origin.`,
           { cause: error },
         )
       }
@@ -61,7 +67,7 @@ export async function analyzeImage(file: File): Promise<AIResult> {
   }
 
   if (!response) {
-    throw new Error('The local prediction server did not return a response.')
+    throw new Error('The prediction server did not return a response.')
   }
 
   if (!response.ok) {
