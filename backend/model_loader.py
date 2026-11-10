@@ -74,22 +74,6 @@ class ModelRegistry:
                 )
                 continue
 
-            try:
-                payload = self._checkpoint_payload(checkpoint_path)
-                checkpoint_classes = payload.get("class_names")
-                if checkpoint_classes is not None and checkpoint_classes != CLASS_NAMES:
-                    raise ValueError("checkpoint class_names do not match the notebook ordering")
-                state_dict = self._state_dict(payload)
-                model = timm.create_model(
-                    spec["architecture"],
-                    pretrained=False,
-                    num_classes=len(CLASS_NAMES),
-                )
-                model.load_state_dict(state_dict, strict=True)
-            except (RuntimeError, ValueError, OSError, KeyError) as error:
-                self._errors[model_id] = f"{checkpoint_path.name}: {error}"
-                continue
-
             self._infos[model_id] = ModelInfo(
                 model_id=model_id,
                 display_name=spec["display_name"],
